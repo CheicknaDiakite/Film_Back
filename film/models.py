@@ -21,6 +21,7 @@ class Film(models.Model):
     description = models.TextField()
 
     image = models.ImageField(upload_to='images/')
+    duration = models.CharField(max_length=50, blank=True, null=True)
     sortie_date = models.DateField(null=True, blank=True)
 
     is_publier = models.BooleanField(default=False)

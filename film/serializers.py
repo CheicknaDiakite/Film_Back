@@ -21,7 +21,7 @@ class FilmSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Film
-        fields = ['uuid', 'title', 'description', 'image', 'video', 'category', 'episodes']
+        fields = ['uuid', 'title', 'description', 'image', 'video', 'duration', 'category', 'episodes']
 
     def create(self, validated_data):
         video_data = validated_data.pop('video', None)
