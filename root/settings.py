@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-sw3zl!*t9@^0%m6#zo@-nmu-6jr6@-%o%&fwv8aesc$&0w5p62
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -38,12 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'utilisateur',
     'film',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -124,3 +126,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTH_USER_MODEL = 'utilisateur.User'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+CORS_ALLOW_CREDENTIALS = True

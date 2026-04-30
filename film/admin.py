@@ -3,8 +3,9 @@ from .models import Type, Film, Episode, Video
 
 @admin.register(Type)
 class TypeAdmin(admin.ModelAdmin):
-    list_display = ('nom',)
+    list_display = ('nom', 'uuid')
     search_fields = ('nom',)
+    readonly_fields = ('uuid',)
 
 class VideoInline(admin.StackedInline):
     model = Video
@@ -19,15 +20,20 @@ class EpisodeInline(admin.StackedInline):
 
 @admin.register(Film)
 class FilmAdmin(admin.ModelAdmin):
-
-    pass
+    list_display = ('title', 'type', 'is_publier', 'created_at', 'uuid')
+    list_filter = ('type', 'is_publier')
+    search_fields = ('title', 'description')
+    readonly_fields = ('uuid',)
+    inlines = [VideoInline, EpisodeInline]
 
 @admin.register(Episode)
 class EpisodeAdmin(admin.ModelAdmin):
-
-    pass
+    list_display = ('title', 'film', 'duration', 'uuid')
+    list_filter = ('film',)
+    search_fields = ('title', 'description')
+    readonly_fields = ('uuid',)
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    
-    pass
+    list_display = ('uuid', 'file', 'film', 'episode')
+    readonly_fields = ('uuid',)
