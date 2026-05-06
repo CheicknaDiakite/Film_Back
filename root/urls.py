@@ -21,12 +21,14 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from root import settings
-from utilisateur.views import RegisterView
+from utilisateur.views import RegisterView, UserDetailView
 
-from film.views import FilmViewSet
+from film.views import FilmViewSet, TypeViewSet, EpisodeViewSet
 
 router = DefaultRouter()
-router.register(r'films', FilmViewSet)
+router.register(r'films', FilmViewSet, basename='film')
+router.register(r'types', TypeViewSet, basename='type')
+router.register(r'episodes', EpisodeViewSet, basename='episode')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,6 +38,7 @@ urlpatterns = [
     path('api/register/', RegisterView.as_view()),
     path('api/login/', TokenObtainPairView.as_view()),
     path('api/token/refresh/', TokenRefreshView.as_view()),
+    path('api/user/me/', UserDetailView.as_view(), name='user-detail'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
