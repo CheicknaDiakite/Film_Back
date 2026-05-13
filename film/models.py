@@ -26,6 +26,8 @@ class Film(models.Model):
 
     is_publier = models.BooleanField(default=False)
 
+    view_count = models.PositiveIntegerField(default=0)
+
     created_at = models.DateTimeField(auto_now_add=True)
     type = models.ForeignKey(Type, on_delete=models.CASCADE,null=True, blank=True, related_name='type')
 
@@ -41,7 +43,9 @@ class Episode(models.Model):
     
     image = models.ImageField(upload_to='episodes/images/', null=True, blank=True)
     duration = models.CharField(max_length=50, blank=True, null=True)
-    
+
+    view_count = models.PositiveIntegerField(default=0)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

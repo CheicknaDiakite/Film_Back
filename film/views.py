@@ -1,8 +1,25 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from django.db.models import Q
-from .models import Film, Type, Episode
-from .serializers import FilmSerializer, TypeSerializer, EpisodeSerializer
+from .models import Film, Type, Episode, Video
+from .serializers import FilmSerializer, TypeSerializer, EpisodeSerializer, VideoSerializer
+
+class VideoViewSet(viewsets.ModelViewSet):
+    serializer_class = VideoSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    lookup_field = 'uuid'
+    
+    def get_queryset(self):
+        queryset = Video.objects.all()
+        mine = self.request.query_params.get('mine')
+        
+        if mine == 'true' and self.request.user.is_authenticated:
+            if self.request.user.role == 'creator':
+                queryset = queryset.filter(
+                    Q(film__creator=self.request.user) | 
+                    Q(episode__film__creator=self.request.user)
+                )
+        return queryset
 
 class TypeViewSet(viewsets.ModelViewSet):
     serializer_class = TypeSerializer
@@ -39,6 +56,7 @@ class FilmViewSet(viewsets.ModelViewSet):
         q = self.request.query_params.get('q')
         type_uuid = self.request.query_params.get('type')
         latest = self.request.query_params.get('latest')
+        mine = self.request.query_params.get('mine')
 
         if q:
             queryset = queryset.filter(
@@ -54,13 +72,26 @@ class FilmViewSet(viewsets.ModelViewSet):
         if latest:
             queryset = queryset.order_by('-created_at')
 
+        if mine == 'true' and self.request.user.is_authenticated:
+            if self.request.user.role == 'creator':
+                queryset = queryset.filter(creator=self.request.user)
+
         return queryset
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
 
 class EpisodeViewSet(viewsets.ModelViewSet):
-    queryset = Episode.objects.all()
     serializer_class = EpisodeSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = 'uuid'
+
+    def get_queryset(self):
+        queryset = Episode.objects.all()
+        mine = self.request.query_params.get('mine')
+
+        if mine == 'true' and self.request.user.is_authenticated:
+            if self.request.user.role == 'creator':
+                queryset = queryset.filter(film__creator=self.request.user)
+        
+        return queryset

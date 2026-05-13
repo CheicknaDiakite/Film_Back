@@ -23,16 +23,18 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from root import settings
 from utilisateur.views import RegisterView, UserDetailView
 
-from film.views import FilmViewSet, TypeViewSet, EpisodeViewSet
+from film.views import FilmViewSet, TypeViewSet, EpisodeViewSet, VideoViewSet
 
 router = DefaultRouter()
 router.register(r'films', FilmViewSet, basename='film')
 router.register(r'types', TypeViewSet, basename='type')
 router.register(r'episodes', EpisodeViewSet, basename='episode')
+router.register(r'videos', VideoViewSet, basename='video')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path('api/', include('engagement.urls')),
     path('api/', include(router.urls)),
 
     path('api/register/', RegisterView.as_view()),
