@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Type, Film, Episode, Video
+from .models import Type, Film, Episode, Video, Pub
 
 @admin.register(Type)
 class TypeAdmin(admin.ModelAdmin):
@@ -36,4 +36,11 @@ class EpisodeAdmin(admin.ModelAdmin):
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'file', 'film', 'episode')
+    readonly_fields = ('uuid',)
+
+@admin.register(Pub)
+class PubAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_publier', 'created_at', 'uuid')
+    list_filter = ('is_publier',)
+    search_fields = ('title', 'description')
     readonly_fields = ('uuid',)

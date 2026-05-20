@@ -1,6 +1,6 @@
 # movies/serializers.py
 from rest_framework import serializers
-from .models import Film, Video, Episode, Type
+from .models import Film, Video, Episode, Type, Pub
 from utilisateur.serializers import UserSerializer
 
 class TypeSerializer(serializers.ModelSerializer):
@@ -97,3 +97,9 @@ class FilmSerializer(serializers.ModelSerializer):
             video.file = video_file
             video.save()
         return instance
+
+
+class PubSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pub
+        fields = ['uuid', 'title', 'description', 'image', 'video', 'duration', 'is_publier', 'created_at']

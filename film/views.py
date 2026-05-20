@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from django.db.models import Q
-from .models import Film, Type, Episode, Video
-from .serializers import FilmSerializer, TypeSerializer, EpisodeSerializer, VideoSerializer
+from .models import Film, Type, Episode, Video, Pub
+from .serializers import FilmSerializer, TypeSerializer, EpisodeSerializer, VideoSerializer, PubSerializer
 
 class VideoViewSet(viewsets.ModelViewSet):
     serializer_class = VideoSerializer
@@ -95,3 +95,18 @@ class EpisodeViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(film__creator=self.request.user)
         
         return queryset
+
+
+class PubViewSet(viewsets.ModelViewSet):
+    serializer_class = PubSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    lookup_field = 'uuid'
+
+    def get_queryset(self):
+        queryset = Pub.objects.all()
+        is_publier = self.request.query_params.get('is_publier')
+        if is_publier == 'true':
+            queryset = queryset.filter(is_publier=True)
+        elif is_publier == 'false':
+            queryset = queryset.filter(is_publier=False)
+        return queryset

@@ -63,3 +63,19 @@ class Video(models.Model):
         if self.episode:
             return f"Vidéo (Épisode) - {self.episode.title}"
         return "Vidéo"
+
+
+class Pub(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+
+    image = models.ImageField(upload_to='pubs/images/')
+    video = models.FileField(upload_to='pubs/videos/')
+    duration = models.CharField(max_length=50, blank=True, null=True)
+
+    is_publier = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
