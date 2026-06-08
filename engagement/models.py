@@ -72,3 +72,40 @@ class EpisodeComment(models.Model):
 
     def __str__(self) -> str:
         return f"Commentaire de {self.user} sur {self.episode}"
+
+
+class FilmFavorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="film_favorites")
+    film = models.ForeignKey(Film, on_delete=models.CASCADE, related_name="favorites")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "film"],
+                name="engagement_filmfavorite_unique_user_film",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user} ★ {self.film}"
+
+
+class EpisodeFavorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="episode_favorites")
+    episode = models.ForeignKey(Episode, on_delete=models.CASCADE, related_name="favorites")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "episode"],
+                name="engagement_episodefavorite_unique_user_episode",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user} ★ {self.episode}"
+
