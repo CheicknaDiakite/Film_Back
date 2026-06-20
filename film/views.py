@@ -1,6 +1,10 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from django.db.models import Q
+from django.http import FileResponse, Http404
+from django.utils.encoding import smart_str
+import os
 from .models import Film, Type, Episode, Video, Pub
 from .serializers import FilmSerializer, TypeSerializer, EpisodeSerializer, VideoSerializer, PubSerializer
 
@@ -20,6 +24,37 @@ class VideoViewSet(viewsets.ModelViewSet):
                     Q(episode__film__creator=self.request.user)
                 )
         return queryset
+
+    @action(detail=True, methods=['get'], url_path='download')
+    def download(self, request, uuid=None):
+        """
+        Stream the video file as an attachment so the browser triggers a download.
+        GET /api/videos/<uuid>/download/
+        """
+        video = self.get_object()
+        if not video.file:
+            raise Http404("Aucun fichier vidéo trouvé.")
+
+        file_path = video.file.path
+        if not os.path.exists(file_path):
+            raise Http404("Le fichier vidéo est introuvable sur le serveur.")
+
+        # Build a friendly filename: <title>.<ext>
+        ext = os.path.splitext(file_path)[1]  # e.g. '.mp4'
+        if video.film:
+            friendly_name = f"{video.film.title}{ext}"
+        elif video.episode:
+            friendly_name = f"{video.episode.film.title} - {video.episode.title}{ext}"
+        else:
+            friendly_name = os.path.basename(file_path)
+
+        response = FileResponse(
+            open(file_path, 'rb'),
+            content_type='video/mp4',
+            as_attachment=True,
+            filename=smart_str(friendly_name),
+        )
+        return response
 
 class TypeViewSet(viewsets.ModelViewSet):
     serializer_class = TypeSerializer
