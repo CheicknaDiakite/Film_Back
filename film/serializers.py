@@ -14,7 +14,8 @@ class VideoSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Video
-        fields = ['uuid', 'file', 'film_uuid', 'episode_uuid']
+        fields = ['uuid', 'file', 'film_uuid', 'episode_uuid', 'compression_status']
+        read_only_fields = ['compression_status']
 
     def validate(self, attrs):
         film = attrs.get('film')

@@ -10,6 +10,9 @@ class Type(models.Model):
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
     
+    class Meta:
+        ordering = ['nom']
+
     def __str__(self):
         return self.nom
 
@@ -30,6 +33,9 @@ class Film(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     type = models.ForeignKey(Type, on_delete=models.CASCADE,null=True, blank=True, related_name='type')
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.title
@@ -52,10 +58,22 @@ class Episode(models.Model):
         return f"{self.film.title} - {self.title}"
 
 class Video(models.Model):
+    COMPRESSION_STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('processing', 'En cours'),
+        ('done', 'Terminée'),
+        ('error', 'Erreur'),
+    ]
+
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
     film = models.OneToOneField(Film, on_delete=models.CASCADE, related_name='video', null=True, blank=True)
     episode = models.OneToOneField(Episode, on_delete=models.CASCADE, related_name='video', null=True, blank=True)
     file = models.FileField(upload_to='videos/')
+    compression_status = models.CharField(
+        max_length=20,
+        choices=COMPRESSION_STATUS_CHOICES,
+        default='pending',
+    )
 
     def __str__(self):
         if self.film:

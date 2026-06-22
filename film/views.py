@@ -7,6 +7,7 @@ from django.utils.encoding import smart_str
 import os
 from .models import Film, Type, Episode, Video, Pub
 from .serializers import FilmSerializer, TypeSerializer, EpisodeSerializer, VideoSerializer, PubSerializer
+from .tasks import compress_video
 
 class VideoViewSet(viewsets.ModelViewSet):
     serializer_class = VideoSerializer
@@ -24,6 +25,20 @@ class VideoViewSet(viewsets.ModelViewSet):
                     Q(episode__film__creator=self.request.user)
                 )
         return queryset
+
+    def perform_create(self, serializer):
+        """Sauvegarde la vidéo puis lance la compression en arrière-plan."""
+        instance = serializer.save()
+        compress_video.delay(instance.pk)
+
+    def perform_update(self, serializer):
+        """Lance la compression uniquement si un nouveau fichier est fourni."""
+        instance = serializer.save()
+        if 'file' in self.request.FILES:
+            # Réinitialiser le statut avant de relancer la compression
+            instance.compression_status = 'pending'
+            instance.save(update_fields=['compression_status'])
+            compress_video.delay(instance.pk)
 
     @action(detail=True, methods=['get'], url_path='download')
     def download(self, request, uuid=None):
