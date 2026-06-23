@@ -36,6 +36,8 @@ router.register(r'pubs', PubViewSet, basename='pub')
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path('ckeditor/', include('ckeditor_uploader.urls')),
+    
     path('api/', include('engagement.urls')),
     path('api/', include(router.urls)),
 

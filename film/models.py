@@ -1,6 +1,7 @@
 # movies/models.py
 from django.db import models
 from django.conf import settings
+from ckeditor_uploader.fields import RichTextUploadingField
 import uuid
 
 User = settings.AUTH_USER_MODEL
@@ -21,7 +22,7 @@ class Film(models.Model):
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    description = RichTextUploadingField(null=True, blank=True)
 
     image = models.ImageField(upload_to='images/')
     duration = models.CharField(max_length=50, blank=True, null=True)
@@ -45,7 +46,7 @@ class Episode(models.Model):
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    description = RichTextUploadingField(null=True, blank=True)
     
     image = models.ImageField(upload_to='episodes/images/', null=True, blank=True)
     duration = models.CharField(max_length=50, blank=True, null=True)
@@ -86,7 +87,7 @@ class Video(models.Model):
 class Pub(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    description = RichTextUploadingField(null=True, blank=True)
 
     image = models.ImageField(upload_to='pubs/images/')
     video = models.FileField(upload_to='pubs/videos/')
@@ -96,4 +97,4 @@ class Pub(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.title
+        return self.title

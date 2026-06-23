@@ -1,5 +1,6 @@
 # movies/serializers.py
 from rest_framework import serializers
+import re
 from .models import Film, Video, Episode, Type, Pub
 from utilisateur.serializers import UserSerializer
 
@@ -50,6 +51,25 @@ class EpisodeSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        request = self.context.get('request')
+
+        # rendre l'URL de l'image absolue si possible
+        if request and data.get('image'):
+            img = data['image']
+            if isinstance(img, str) and not img.startswith('http'):
+                if img.startswith('/'):
+                    data['image'] = request.build_absolute_uri(img)
+                else:
+                    data['image'] = request.build_absolute_uri('/' + img.lstrip('/'))
+
+        # corriger les <img src="..."> dans la description pour utiliser des URLs absolues
+        if request and data.get('description'):
+            desc = data['description']
+            try:
+                data['description'] = re.sub(r'src="(/[^\"]+)"', lambda m: f'src="{request.build_absolute_uri(m.group(1))}"', desc)
+            except Exception:
+                pass
+
         if instance.film and instance.film.creator:
             data['creator'] = UserSerializer(instance.film.creator).data
         return data
@@ -98,6 +118,29 @@ class FilmSerializer(serializers.ModelSerializer):
             video.file = video_file
             video.save()
         return instance
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+
+        # rendre l'URL de l'image absolue si possible
+        if request and data.get('image'):
+            img = data['image']
+            if isinstance(img, str) and not img.startswith('http'):
+                if img.startswith('/'):
+                    data['image'] = request.build_absolute_uri(img)
+                else:
+                    data['image'] = request.build_absolute_uri('/' + img.lstrip('/'))
+
+        # corriger les <img src="..."> dans la description pour utiliser des URLs absolues
+        if request and data.get('description'):
+            desc = data['description']
+            try:
+                data['description'] = re.sub(r'src="(/[^\"]+)"', lambda m: f'src="{request.build_absolute_uri(m.group(1))}"', desc)
+            except Exception:
+                pass
+
+        return data
 
 
 class PubSerializer(serializers.ModelSerializer):
