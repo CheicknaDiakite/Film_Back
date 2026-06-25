@@ -84,9 +84,17 @@ WSGI_APPLICATION = 'root.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': "film",
+        'USER': "root",
+        'PASSWORD': "",
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
 
 
@@ -162,9 +170,9 @@ SIMPLE_JWT = {
 }
 
 # ─── Celery Configuration ────────────────────────────────────────────────────
-# Broker : Redis (lancer avec `redis-server` ou Docker : docker run -p 6379:6379 redis)
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+# Broker : Redis o2switch via socket Unix
+CELERY_BROKER_URL = 'unix://:796d8ddf-964c-42b8-945d-f5f0f5e53e8e@/home/dich5095/.cpanel/redis/redis.sock?db=0'
+CELERY_RESULT_BACKEND = 'unix://:796d8ddf-964c-42b8-945d-f5f0f5e53e8e@/home/dich5095/.cpanel/redis/redis.sock?db=0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
