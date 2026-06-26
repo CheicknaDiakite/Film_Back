@@ -4,6 +4,8 @@ from django.conf import settings
 from ckeditor_uploader.fields import RichTextUploadingField
 import uuid
 
+from root.utils import upload_to
+
 User = settings.AUTH_USER_MODEL
 
 class Type(models.Model):
@@ -24,7 +26,7 @@ class Film(models.Model):
     title = models.CharField(max_length=255)
     description = RichTextUploadingField(null=True, blank=True)
 
-    image = models.ImageField(upload_to='images/')
+    image = models.ImageField(upload_to=upload_to("images"))
     duration = models.CharField(max_length=50, blank=True, null=True)
     sortie_date = models.DateField(null=True, blank=True)
 
@@ -48,7 +50,7 @@ class Episode(models.Model):
     title = models.CharField(max_length=255)
     description = RichTextUploadingField(null=True, blank=True)
     
-    image = models.ImageField(upload_to='episodes/images/', null=True, blank=True)
+    image = models.ImageField(upload_to=upload_to("episodes/images"), null=True, blank=True)
     duration = models.CharField(max_length=50, blank=True, null=True)
 
     view_count = models.PositiveIntegerField(default=0)
@@ -69,7 +71,7 @@ class Video(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
     film = models.OneToOneField(Film, on_delete=models.CASCADE, related_name='video', null=True, blank=True)
     episode = models.OneToOneField(Episode, on_delete=models.CASCADE, related_name='video', null=True, blank=True)
-    file = models.FileField(upload_to='videos/')
+    file = models.FileField(upload_to=upload_to("videos"))
     compression_status = models.CharField(
         max_length=20,
         choices=COMPRESSION_STATUS_CHOICES,
@@ -89,8 +91,8 @@ class Pub(models.Model):
     title = models.CharField(max_length=255)
     description = RichTextUploadingField(null=True, blank=True)
 
-    image = models.ImageField(upload_to='pubs/images/')
-    video = models.FileField(upload_to='pubs/videos/')
+    image = models.ImageField(upload_to=upload_to("pubs/images"))
+    video = models.FileField(upload_to=upload_to("pubs/videos"))
     duration = models.CharField(max_length=50, blank=True, null=True)
 
     is_publier = models.BooleanField(default=False)
