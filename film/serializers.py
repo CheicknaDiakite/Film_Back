@@ -12,11 +12,27 @@ class TypeSerializer(serializers.ModelSerializer):
 class VideoSerializer(serializers.ModelSerializer):
     film_uuid = serializers.SlugRelatedField(source='film', queryset=Film.objects.all(), slug_field='uuid', required=False, allow_null=True)
     episode_uuid = serializers.SlugRelatedField(source='episode', queryset=Episode.objects.all(), slug_field='uuid', required=False, allow_null=True)
+    stream_url = serializers.SerializerMethodField()
+    download_url = serializers.SerializerMethodField()
     
     class Meta:
         model = Video
-        fields = ['uuid', 'file', 'film_uuid', 'episode_uuid', 'compression_status']
+        fields = ['uuid', 'file', 'stream_url', 'download_url', 'film_uuid', 'episode_uuid', 'compression_status']
         read_only_fields = ['compression_status']
+
+    def get_stream_url(self, obj):
+        request = self.context.get('request')
+        if not obj.uuid:
+            return None
+        path = f'/api/videos/{obj.uuid}/stream/'
+        return request.build_absolute_uri(path) if request else path
+
+    def get_download_url(self, obj):
+        request = self.context.get('request')
+        if not obj.uuid:
+            return None
+        path = f'/api/videos/{obj.uuid}/download/'
+        return request.build_absolute_uri(path) if request else path
 
     def validate(self, attrs):
         film = attrs.get('film')
@@ -78,7 +94,9 @@ class EpisodeSerializer(serializers.ModelSerializer):
         video_file = validated_data.pop('video_file', None)
         episode = Episode.objects.create(**validated_data)
         if video_file:
-            Video.objects.create(episode=episode, file=video_file)
+            video = Video.objects.create(episode=episode, file=video_file)
+            from .tasks import compress_video
+            compress_video.delay(video.pk)
         return episode
 
     def update(self, instance, validated_data):
@@ -87,7 +105,10 @@ class EpisodeSerializer(serializers.ModelSerializer):
         if video_file:
             video, created = Video.objects.get_or_create(episode=instance)
             video.file = video_file
+            video.compression_status = 'pending'
             video.save()
+            from .tasks import compress_video
+            compress_video.delay(video.pk)
         return instance
 
 class FilmSerializer(serializers.ModelSerializer):
@@ -107,7 +128,9 @@ class FilmSerializer(serializers.ModelSerializer):
         video_file = validated_data.pop('video_file', None)
         film = Film.objects.create(**validated_data)
         if video_file:
-            Video.objects.create(film=film, file=video_file)
+            video = Video.objects.create(film=film, file=video_file)
+            from .tasks import compress_video
+            compress_video.delay(video.pk)
         return film
 
     def update(self, instance, validated_data):
@@ -116,7 +139,10 @@ class FilmSerializer(serializers.ModelSerializer):
         if video_file:
             video, created = Video.objects.get_or_create(film=instance)
             video.file = video_file
+            video.compression_status = 'pending'
             video.save()
+            from .tasks import compress_video
+            compress_video.delay(video.pk)
         return instance
 
     def to_representation(self, instance):

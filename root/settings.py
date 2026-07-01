@@ -92,8 +92,12 @@ DATABASES = {
         'PORT': '3306',
     }
     # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': "dich5095_miri",
+    #     'USER': "dich5095_usermiri",
+    #     'PASSWORD': "Bonjour@10",
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
     # }
 }
 
@@ -147,6 +151,7 @@ AUTH_USER_MODEL = 'utilisateur.User'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://miri.diakitedigital.com"
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = [
@@ -170,9 +175,23 @@ SIMPLE_JWT = {
 }
 
 # ─── Celery Configuration ────────────────────────────────────────────────────
-# Broker : Redis o2switch via socket Unix
-CELERY_BROKER_URL = 'unix://:796d8ddf-964c-42b8-945d-f5f0f5e53e8e@/home/dich5095/.cpanel/redis/redis.sock?db=0'
-CELERY_RESULT_BACKEND = 'unix://:796d8ddf-964c-42b8-945d-f5f0f5e53e8e@/home/dich5095/.cpanel/redis/redis.sock?db=0'
+import platform
+
+if platform.system() == 'Windows':
+    # ── Développement local (Windows) ──────────────────────────────────────────
+    # Pas de Redis ni de worker Celery requis en local.
+    # Le broker mémoire accepte les appels .delay() sans planter.
+    # Les tâches ne seront PAS exécutées (pas de compression vidéo en local),
+    # mais le film/épisode est créé normalement.
+    CELERY_BROKER_URL = 'memory://'
+    CELERY_RESULT_BACKEND = 'cache+memory://'
+else:
+    # ── Production (o2switch / Linux) ──────────────────────────────────────────
+    # Broker : Redis via socket Unix — le bon schéma Kombu est redis+socket://
+    # (unix:// n'est PAS un transport Kombu valide)
+    CELERY_BROKER_URL = 'redis+socket://:796d8ddf-964c-42b8-945d-f5f0f5e53e8e@/home/dich5095/.cpanel/redis/redis.sock?virtual_host=0&protocol=2'
+    CELERY_RESULT_BACKEND = 'redis+socket://:796d8ddf-964c-42b8-945d-f5f0f5e53e8e@/home/dich5095/.cpanel/redis/redis.sock?virtual_host=0&protocol=2'
+
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
