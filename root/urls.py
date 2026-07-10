@@ -23,10 +23,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from root import settings
 from utilisateur.views import RegisterView, UserDetailView, ChangePasswordView
 
-from film.views import FilmViewSet, TypeViewSet, EpisodeViewSet, VideoViewSet, PubViewSet
+from film.views import FilmViewSet, TypeViewSet, EpisodeViewSet, VideoViewSet, PubViewSet, CategorieViewSet
 
 router = DefaultRouter()
 router.register(r'films', FilmViewSet, basename='film')
+router.register(r'categories', CategorieViewSet, basename='categorie')
 router.register(r'types', TypeViewSet, basename='type')
 router.register(r'episodes', EpisodeViewSet, basename='episode')
 router.register(r'videos', VideoViewSet, basename='video')

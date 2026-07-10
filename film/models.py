@@ -8,10 +8,20 @@ from root.utils import upload_to
 
 User = settings.AUTH_USER_MODEL
 
+class Categorie(models.Model):
+    nom = models.CharField(max_length=100)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
+
+    class Meta:
+        ordering = ['nom']
+
+    def __str__(self):
+        return self.nom
+
 class Type(models.Model):
     nom = models.CharField(max_length=100)
-
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)
+    categorie = models.ForeignKey(Categorie, on_delete=models.CASCADE, null=True, blank=True, related_name='types')
     
     class Meta:
         ordering = ['nom']
@@ -84,7 +94,6 @@ class Video(models.Model):
         if self.episode:
             return f"Vidéo (Épisode) - {self.episode.title}"
         return "Vidéo"
-
 
 class Pub(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, null=True, blank=True)

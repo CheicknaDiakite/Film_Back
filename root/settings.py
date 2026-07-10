@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'ckeditor',
     'ckeditor_uploader',
+    'storages',
     'utilisateur',
     'film',
     'engagement',
@@ -90,6 +91,10 @@ DATABASES = {
         'PASSWORD': "",
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'",
+        },
     }
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',

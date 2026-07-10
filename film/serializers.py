@@ -1,13 +1,21 @@
 # movies/serializers.py
 from rest_framework import serializers
 import re
-from .models import Film, Video, Episode, Type, Pub
+from .models import Film, Video, Episode, Type, Pub, Categorie
 from utilisateur.serializers import UserSerializer
 
+class CategorieSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categorie
+        fields = ['uuid', 'nom']
+
 class TypeSerializer(serializers.ModelSerializer):
+    categorie = serializers.SlugRelatedField(queryset=Categorie.objects.all(), slug_field='uuid', required=False, allow_null=True)
+    categorie_nom = serializers.CharField(source='categorie.nom', read_only=True)
+
     class Meta:
         model = Type
-        fields = ['uuid', 'nom']
+        fields = ['uuid', 'nom', 'categorie', 'categorie_nom']
 
 class VideoSerializer(serializers.ModelSerializer):
     film_uuid = serializers.SlugRelatedField(source='film', queryset=Film.objects.all(), slug_field='uuid', required=False, allow_null=True)

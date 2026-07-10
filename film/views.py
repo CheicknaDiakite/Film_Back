@@ -6,8 +6,8 @@ from django.http import FileResponse, Http404, StreamingHttpResponse
 from django.utils.encoding import smart_str
 import mimetypes
 import os
-from .models import Film, Type, Episode, Video, Pub
-from .serializers import FilmSerializer, TypeSerializer, EpisodeSerializer, VideoSerializer, PubSerializer
+from .models import Film, Type, Episode, Video, Pub, Categorie
+from .serializers import FilmSerializer, TypeSerializer, EpisodeSerializer, VideoSerializer, PubSerializer, CategorieSerializer
 from .tasks import compress_video
 
 class VideoViewSet(viewsets.ModelViewSet):
@@ -151,6 +151,23 @@ class VideoViewSet(viewsets.ModelViewSet):
         )
         return response
 
+class CategorieViewSet(viewsets.ModelViewSet):
+    serializer_class = CategorieSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    lookup_field = 'uuid'
+
+    def get_queryset(self):
+        return Categorie.objects.all()
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.types.exists():
+            return Response(
+                {"error": "Impossible de supprimer cette catégorie car elle est liée à des types existants."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().destroy(request, *args, **kwargs)
+
 class TypeViewSet(viewsets.ModelViewSet):
     serializer_class = TypeSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -185,6 +202,7 @@ class FilmViewSet(viewsets.ModelViewSet):
         queryset = Film.objects.all()
         q = self.request.query_params.get('q')
         type_uuid = self.request.query_params.get('type')
+        category_uuid = self.request.query_params.get('category')
         latest = self.request.query_params.get('latest')
         mine = self.request.query_params.get('mine')
 
@@ -198,6 +216,9 @@ class FilmViewSet(viewsets.ModelViewSet):
         
         if type_uuid:
             queryset = queryset.filter(type__uuid=type_uuid)
+
+        if category_uuid:
+            queryset = queryset.filter(type__categorie__uuid=category_uuid)
         
         if latest:
             queryset = queryset.order_by('-created_at')

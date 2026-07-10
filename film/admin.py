@@ -1,10 +1,17 @@
 from django.contrib import admin
-from .models import Type, Film, Episode, Video, Pub
+from .models import Categorie, Type, Film, Episode, Video, Pub
+
+@admin.register(Categorie)
+class CategorieAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'uuid')
+    search_fields = ('nom',)
+    readonly_fields = ('uuid',)
 
 @admin.register(Type)
 class TypeAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'uuid')
-    search_fields = ('nom',)
+    list_display = ('nom', 'categorie', 'uuid')
+    list_filter = ('categorie',)
+    search_fields = ('nom', 'categorie__nom')
     readonly_fields = ('uuid',)
 
 class VideoInline(admin.StackedInline):
