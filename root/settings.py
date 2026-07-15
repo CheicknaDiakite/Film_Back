@@ -103,8 +103,20 @@ DATABASES = {
     #     'PASSWORD': "Bonjour@10",
     #     'HOST': 'localhost',
     #     'PORT': '3306',
+    #     'OPTIONS': {
+    #         'charset': 'utf8mb4',
+    #         # Force utf8mb4 sur TOUTE la connexion (client, résultats, connexion, serveur)
+    #         'init_command': (
+    #             "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';"
+    #             "SET character_set_client = utf8mb4;"
+    #             "SET character_set_results = utf8mb4;"
+    #             "SET character_set_connection = utf8mb4;"
+    #             "SET collation_connection = utf8mb4_unicode_ci;"
+    #         ),
+    #     },
     # }
 }
+
 
 
 # Password validation
